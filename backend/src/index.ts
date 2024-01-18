@@ -3,6 +3,7 @@ import cors from 'cors'
 import "dotenv/config"
 import mongoose from "mongoose"
 import userRouter from "./routes/user"
+import authRouter from "./routes/auth"
 
 const app = express()
 
@@ -11,6 +12,7 @@ app.use(cors())
 app.use(express.urlencoded({ extended: true }))
 
 app.use("/api/users", userRouter)
+app.use("/api/auth", authRouter)
 
 mongoose.connect(process.env.MONGO_URL as string)
 

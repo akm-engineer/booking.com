@@ -1,6 +1,8 @@
 import { useForm } from "react-hook-form";
+import { useMutation } from "react-query";
+import * as apiClient from "../api-client";
 
-type RegisterFormData = {
+export type RegisterFormData = {
     email: string;
     firstName: string;
     lastName: string;
@@ -9,9 +11,38 @@ type RegisterFormData = {
 };
 
 const Register = () => {
-    const { register, watch, handleSubmit, formState: { errors } } = useForm<RegisterFormData>();
+    const {
+        register,
+        watch,
+        handleSubmit,
+        formState: { errors },
+    } = useForm<RegisterFormData>();
 
-    const onSubmit = handleSubmit((data) => console.log(data))
+    const mutation = useMutation(apiClient.register, {
+        onSuccess: () => {
+            console.log("successfully registered");
+        },
+        onError: (error: Error | unknown) => {
+            console.error('Server Error:', error);
+
+            let errorMessage = "Registration failed";
+
+            if (typeof error === 'string' && error === 'OK') {
+                console.log('Registration successful!');
+                return; // Exit early if the response is "OK"
+            }
+
+            if (error instanceof Error) {
+                errorMessage = error.message || errorMessage;
+            }
+
+            console.log(`Registration failed! ${errorMessage}`);
+        },
+    });
+
+    const onSubmit = handleSubmit((data) => {
+        mutation.mutate(data);
+    });
     return (
         <form className="flex flex-col gap-5" onSubmit={onSubmit}>
             <h2 className="text-3xl font-bold ">Create an Account</h2>
@@ -23,7 +54,9 @@ const Register = () => {
                         {...register("firstName", { required: "This field is required" })}
                     ></input>
                     {errors.firstName && (
-                        <span className="font-normal text-red-400 ">{errors.firstName.message}</span>
+                        <span className="font-normal text-red-400 ">
+                            {errors.firstName.message}
+                        </span>
                     )}
                 </label>
                 <label className="text-gray-700 text-sm font-bold flex-1">
@@ -33,7 +66,9 @@ const Register = () => {
                         {...register("lastName", { required: "This field is required" })}
                     ></input>
                     {errors.lastName && (
-                        <span className="font-normal text-red-400 ">{errors.lastName.message}</span>
+                        <span className="font-normal text-red-400 ">
+                            {errors.lastName.message}
+                        </span>
                     )}
                 </label>
             </div>
@@ -45,7 +80,9 @@ const Register = () => {
                     {...register("email", { required: "This field is required" })}
                 ></input>
                 {errors.email && (
-                    <span className="font-normal text-red-400 ">{errors.email.message}</span>
+                    <span className="font-normal text-red-400 ">
+                        {errors.email.message}
+                    </span>
                 )}
             </label>
             <label className="text-gray-700 text-sm font-bold flex-1">
@@ -62,7 +99,9 @@ const Register = () => {
                     })}
                 ></input>
                 {errors.password && (
-                    <span className="font-normal text-red-400 ">{errors.password.message}</span>
+                    <span className="font-normal text-red-400 ">
+                        {errors.password.message}
+                    </span>
                 )}
             </label>
             <label className="text-gray-700 text-sm font-bold flex-1">
@@ -79,7 +118,9 @@ const Register = () => {
                     })}
                 ></input>
                 {errors.confirmPassword && (
-                    <span className="font-normal text-red-400 ">{errors.confirmPassword.message}</span>
+                    <span className="font-normal text-red-400 ">
+                        {errors.confirmPassword.message}
+                    </span>
                 )}
             </label>
             <span>

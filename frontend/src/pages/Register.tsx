@@ -1,6 +1,10 @@
 import { useForm } from "react-hook-form";
 import { useMutation } from "react-query";
 import * as apiClient from "../api-client";
+import { useAppContext } from "../contexts/AppContext";
+import { useNavigate } from "react-router-dom";
+// import AdPage from "../components/AdPage"
+// import { useEffect, useState } from "react";
 
 export type RegisterFormData = {
     email: string;
@@ -11,6 +15,8 @@ export type RegisterFormData = {
 };
 
 const Register = () => {
+    const navigate = useNavigate()
+    const { showToast } = useAppContext()
     const {
         register,
         watch,
@@ -20,23 +26,13 @@ const Register = () => {
 
     const mutation = useMutation(apiClient.register, {
         onSuccess: () => {
-            console.log("successfully registered");
+            showToast({ message: "Registration Successfull !", type: "SUCCESS" })
+            navigate("/")
         },
-        onError: (error: Error | unknown) => {
-            console.error('Server Error:', error);
+        onError: (error: Error) => {
 
-            let errorMessage = "Registration failed";
 
-            if (typeof error === 'string' && error === 'OK') {
-                console.log('Registration successful!');
-                return; // Exit early if the response is "OK"
-            }
-
-            if (error instanceof Error) {
-                errorMessage = error.message || errorMessage;
-            }
-
-            console.log(`Registration failed! ${errorMessage}`);
+            showToast({ message: `${error.message}`, type: "ERROR" })
         },
     });
 
@@ -44,6 +40,9 @@ const Register = () => {
         mutation.mutate(data);
     });
     return (
+
+
+
         <form className="flex flex-col gap-5" onSubmit={onSubmit}>
             <h2 className="text-3xl font-bold ">Create an Account</h2>
             <div className="flex flex-col md:flex-row  gap-5">
@@ -132,6 +131,7 @@ const Register = () => {
                 </button>
             </span>
         </form>
+
     );
 };
 export default Register;
